@@ -30,7 +30,7 @@ public class ServerUserInterface extends JFrame {
         super();
 
         // -- set the application title
-        this.setTitle("Server UI");
+        this.setTitle("Server");
 
         // -- initial size of the frame: width, height
         this.setSize(WIDTH, HEIGHT);
@@ -68,6 +68,7 @@ public class ServerUserInterface extends JFrame {
     	
     	// -- push buttons
         private JButton refresh;
+        private JButton shutdown;
         
         // -- fixed labels, can be changed by the program but not the user
         private JLabel numOfConnections = new JLabel("  Number of Connections   ");
@@ -96,6 +97,7 @@ public class ServerUserInterface extends JFrame {
         	this.add(numOfloggedInUsers);
         	this.add(users);
             this.add(refresh); 
+            this.add(shutdown);
             
         }
         
@@ -115,13 +117,15 @@ public class ServerUserInterface extends JFrame {
                         
         			}
                 }
-            ); 
+            );
+        	
+        	shutdown= new JButton("Shutdown");
         }
         
         // -- sets the size of the JPanel
         public Dimension getPreferredSize()
         {
-            return new Dimension(200, 500);
+            return new Dimension(150, 500);
         }
         
     }
@@ -164,4 +168,3 @@ public class ServerUserInterface extends JFrame {
 		
 	}
 }
-
