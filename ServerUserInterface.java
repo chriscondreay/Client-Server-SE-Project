@@ -10,7 +10,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class ServerUserInterface extends JFrame {
@@ -18,7 +21,8 @@ public class ServerUserInterface extends JFrame {
 	private final int WIDTH = 600;
     private final int HEIGHT = 600;
 
-    private MainPanelInner mainPanel;
+    private ControlPanelInner controlPanel;
+    private DisplayPanelInner displayPanel;
     
     public ServerUserInterface() {
     	
@@ -44,9 +48,13 @@ public class ServerUserInterface extends JFrame {
         //    5, 5 is the border around the edges of the areas
         setLayout(new BorderLayout(5, 5));
        
-        // -- construct a JPanel for graphics
-        mainPanel = new MainPanelInner();
-        this.add(mainPanel, BorderLayout.CENTER);
+        // -- construct a JPanel
+        controlPanel = new ControlPanelInner();
+        this.add(controlPanel, BorderLayout.WEST);
+        
+        // -- construct a JPanel
+        displayPanel = new DisplayPanelInner();
+        this.add(displayPanel, BorderLayout.CENTER);
         
         // -- can make it so the user cannot resize the frame
         this.setResizable(false);
@@ -56,49 +64,96 @@ public class ServerUserInterface extends JFrame {
         
     }
     
-    public class MainPanelInner extends JPanel {
+    public class ControlPanelInner extends JPanel {
     	
     	// -- push buttons
-        private JButton disconnect;
+        private JButton refresh;
         
-     // -- field to hold 1 line of text
-        private JTextField textField;
+        // -- fixed labels, can be changed by the program but not the user
+        private JLabel numOfConnections = new JLabel("  Number of Connections   ");
+        private JLabel numOfloggedInUsers = new JLabel("  Users Logged In   ");
         
-        public MainPanelInner() {
+        
+        // -- field to hold 1 line of text
+        private JTextField connections;
+        private JTextField users;
+        
+        public ControlPanelInner() {
         	
         	prepareButtonHandlers();
         	
-        	setLayout(new GridBagLayout());
+        	setLayout(new FlowLayout());
         	
         	// -- construct the JTextField, 15 characters wide
-        	textField = new JTextField("Server On", 15);
-        	textField.setEditable(false);
+        	connections = new JTextField(" ", 15);
+        	connections.setEditable(false);
+        	users = new JTextField(" ", 15);
+        	users.setEditable(false);
+        	
             // -- add items to the JPanel in order
-            this.add(disconnect, new GridBagConstraints()); 
-            //this.add(textField);
+        	this.add(numOfConnections);
+        	this.add(connections);
+        	this.add(numOfloggedInUsers);
+        	this.add(users);
+            this.add(refresh); 
             
         }
         
         // -- construct JButtons and add event handlers
         private void prepareButtonHandlers() {
         	
-          disconnect = new JButton("Disconnect");
+        	refresh = new JButton("Refresh");
         	//disconnect
-        	disconnect.addActionListener(
-        	new ActionListener() {
+        	refresh.addActionListener(
+        		new ActionListener() {
                     	
         			public void actionPerformed(ActionEvent arg0) {
                         	
         				// -- do not do anything that is time consuming
         				//    doing so will make the GUI non-responsive to the user
-        				String textFieldString = textField.getText();
+        				//String textFieldString = textField.getText();
                         
+        			}
                 }
-            }
-        ); 
+            ); 
+        }
+        
+        // -- sets the size of the JPanel
+        public Dimension getPreferredSize()
+        {
+            return new Dimension(200, 500);
+        }
+        
     }
-}
    
+    public class DisplayPanelInner extends JPanel{
+    	
+    	// -- fixed labels, can be changed by the program but not the user
+    	private JLabel loggedInUserEmail = new JLabel("  Logged In User Emails   ");
+    	
+    	private JTextArea textArea;
+    	private JScrollPane emailScrollPane;
+
+    	public DisplayPanelInner() {
+  
+    		super();
+    		
+    		setLayout(new FlowLayout());
+    		
+    		textArea = new JTextArea(30,75);
+    		this.add(textArea);
+    		
+    		this.add(loggedInUserEmail);
+    	}
+    	
+    	// -- sets the size of the JPanel
+        public Dimension getPreferredSize()
+        {
+            return new Dimension(100, 100);
+        }
+    	
+    }
+    
     public static void main(String[] args) {
 	      
 	     new ServerUserInterface();
