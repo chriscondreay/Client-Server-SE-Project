@@ -1,6 +1,7 @@
 package ClientServer;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,15 +10,19 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class ClientUserInterface extends JFrame {
 	
-	private final int WIDTH = 600;
-    private final int HEIGHT = 600;
+	private final int WIDTH = 220;
+    private final int HEIGHT = 180;
 
-    private MainPanelInner mainPanel;
+    private ControlPanelInner controlPanel;
+    private DisplayPanelInner displayPanel;
     
     public ClientUserInterface() {
     	
@@ -25,7 +30,7 @@ public class ClientUserInterface extends JFrame {
         super();
 
         // -- set the application title
-        this.setTitle("Client UI");
+        this.setTitle("Client");
 
         // -- initial size of the frame: width, height
         this.setSize(WIDTH, HEIGHT);
@@ -43,9 +48,9 @@ public class ClientUserInterface extends JFrame {
         //    5, 5 is the border around the edges of the areas
         setLayout(new BorderLayout(5, 5));
        
-        // -- construct a JPanel for graphics
-        mainPanel = new MainPanelInner();
-        this.add(mainPanel, BorderLayout.CENTER);
+        // -- construct a JPanel
+        controlPanel = new ControlPanelInner();
+        this.add(controlPanel, BorderLayout.WEST);
         
         // -- can make it so the user cannot resize the frame
         this.setResizable(false);
@@ -55,26 +60,42 @@ public class ClientUserInterface extends JFrame {
         
     }
     
-    public class MainPanelInner extends JPanel {
+    public class ControlPanelInner extends JPanel {
     	
     	// -- push buttons
         private JButton login;
+        private JButton register;
+        private JButton pwdRecov;
+        private JButton shutdown;
         
-     // -- field to hold 1 line of text
-        private JTextField textField;
         
-        public MainPanelInner() {
+        // -- fixed labels, can be changed by the program but not the user
+        private JLabel errorMesages = new JLabel("  *any error messages here*   ");
+        private JLabel numOfloggedInUsers = new JLabel("  Users Logged In   ");
+        
+        
+        // -- field to hold 1 line of text
+        private JTextField connections;
+        private JTextField users;
+        
+        public ControlPanelInner() {
         	
         	prepareButtonHandlers();
         	
-        	setLayout(new GridBagLayout());
+        	setLayout(new FlowLayout());
         	
         	// -- construct the JTextField, 15 characters wide
-        	//textField = new JTextField("", 15);
-        	//textField.setEditable(false);
+        	connections = new JTextField(" ", 15);
+        	connections.setEditable(false);
+        	users = new JTextField(" ", 15);
+        	users.setEditable(false);
+        	
             // -- add items to the JPanel in order
-            this.add(login, new GridBagConstraints()); 
-            //this.add(textField);
+            this.add(login); 
+            this.add(register); 
+            this.add(pwdRecov); 
+            this.add(shutdown); 
+            this.add(errorMesages);
             
         }
         
@@ -82,6 +103,7 @@ public class ClientUserInterface extends JFrame {
         private void prepareButtonHandlers() {
         	
         	login = new JButton("Login");
+        	//disconnect
         	login.addActionListener(
         		new ActionListener() {
                     	
@@ -94,10 +116,19 @@ public class ClientUserInterface extends JFrame {
         			}
                 }
             ); 
+        	register = new JButton("Register");
+        	pwdRecov = new JButton("Recovery Password");
+        	shutdown = new JButton("Shutdown");
         }
-   
+        
+        // -- sets the size of the JPanel
+        public Dimension getPreferredSize()
+        {
+            return new Dimension(200, 500);
+        }
+        
     }
-   
+    
     public static void main(String[] args) {
 	      
 	     new ClientUserInterface();
