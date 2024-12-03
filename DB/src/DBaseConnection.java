@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Scanner;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class DBaseConnection {
 
@@ -13,7 +14,7 @@ public class DBaseConnection {
   private Statement stmt = null;
   private ResultSet rset = null;
 
-  String schema = "login_schema";
+  String schema = "client";
   private String url = "jdbc:mysql://127.0.0.1:3306/" + schema;
 
   public DBaseConnection(String username, String password) {
@@ -40,10 +41,15 @@ public class DBaseConnection {
         printResultSet(rset);
 
         System.out.println("Inserted Contents");
-        int ID = 2;
-        String username = "\'johndoe123\'";
-        String email = "\'fakeperson@gmail.com\'";
-        stmt.executeUpdate("INSERT INTO users VALUE(" + ID + ", " + username + ", " + email + ");");
+        String username = "\'johndoe\'";
+        String password = "\'password123\'";
+        String hashedPassword = "'" + BCrypt.hashpw(password, BCrypt.gensalt());
+        
+        String insertSQL = "INSERT INTO users (username, password) VALUES (?, ?)";
+        PreparedStatement pstmt = conn.prepareStatement(insertSQL);
+        pstmt.setString(1, username);
+        pstmt.setString(2, hashedPassword);
+        pstmt.executeUpdate();
 
         rset = stmt.executeQuery("SELECT * FROM users;");
         printResultSet(rset);
@@ -53,8 +59,6 @@ public class DBaseConnection {
 
         rset = stmt.executeQuery("SELECT * FROM users WHERE username=" + username + ";");
         printResultSet(rset);
-
-        stmt.executeUpdate("DELETE FROM users WHERE username=" + username + ";");
 
         rset = stmt.executeQuery("SELECT * FROM users WHERE username=" + username + ";");
         System.out.println("Should be blank");
