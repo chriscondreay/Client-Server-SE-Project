@@ -19,6 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import ClientServer.DB.DBaseConnection;
 import ClientServer.ServerUserInterface.DisplayPanelInner;
 
 public class ClientUserInterface extends JFrame {
@@ -73,9 +74,14 @@ public class ClientUserInterface extends JFrame {
         private JButton submitButton;
         private JButton cancelButton;
         private JLabel statusLabel;
+        private DBaseConnection dbConnection;
 
         public LoginWindow() {
             super("Login");
+
+            // -- connection for the database, change the username and password to your MySQL credentials
+            dbConnection = new DBaseConnection("root", "Nita2020!CeC");
+
             initializeComponents();
             setupLayout();
 
@@ -145,7 +151,19 @@ public class ClientUserInterface extends JFrame {
                 statusLabel.setText("Please fill in all fields");
                 return;
             }
-            statusLabel.setText("Attemping to login...");
+
+            statusLabel.setText("Attempting to login..." + username);
+            boolean loginSuccess = dbConnection.verifyUser(username, password);
+            System.out.println("Login success: " + loginSuccess);
+
+            if (loginSuccess) {
+                System.out.println("Login successful!");
+                dispose();
+            } else {
+                statusLabel.setText("Invalid username or password");
+                passwordField.setText("");
+            }
+
         }
     }
     
@@ -159,8 +177,8 @@ public class ClientUserInterface extends JFrame {
         
         
         // -- fixed labels, can be changed by the program but not the user
-        private JLabel errorMesages = new JLabel("  *any error messages here*   ");
-        private JLabel numOfloggedInUsers = new JLabel("  Users Logged In   ");
+        private JLabel errorMessages = new JLabel("   *any error messages here*   ");
+        private JLabel numOfLoggedInUsers = new JLabel("  Users Logged In   ");
         
         
         // -- field to hold 1 line of text
@@ -184,7 +202,7 @@ public class ClientUserInterface extends JFrame {
             this.add(register); 
             this.add(pwdRecov); 
             this.add(shutdown); 
-            this.add(errorMesages);
+            this.add(errorMessages);
             
         }
         
