@@ -1,4 +1,4 @@
-package com.mycompany.client;
+package ClientServer;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
