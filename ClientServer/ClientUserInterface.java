@@ -8,6 +8,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,24 +20,30 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 
-import ClientServer.DB.DBaseConnection;
+import ClientServer.DBaseConnection;
 import ClientServer.ServerUserInterface.DisplayPanelInner;
 
 public class ClientUserInterface extends JFrame {
 	
-	private final int WIDTH = 220;
-    private final int HEIGHT = 180;
-
+	private final int WIDTH = 300;
+    private final int HEIGHT = 200;
+    
+    private ConnectWindow connectWindow;
     private ControlPanelInner controlPanel;
     private DisplayPanelInner displayPanel;
     private boolean loginVisible = false;
+    private Client client;
+    //private JFrame main;
     
     public ClientUserInterface() {
     	
     	// -- construct the base JFrame first
         super();
-
+        
+        client = new Client();
+        
         // -- set the application title
         this.setTitle("Client");
 
@@ -55,9 +63,10 @@ public class ClientUserInterface extends JFrame {
         //    5, 5 is the border around the edges of the areas
         setLayout(new BorderLayout(5, 5));
        
+        connectWindow = new ConnectWindow();
+        this.add(connectWindow,BorderLayout.CENTER);
         // -- construct a JPanel
         controlPanel = new ControlPanelInner();
-        this.add(controlPanel, BorderLayout.WEST);
         
         // -- can make it so the user cannot resize the frame
         this.setResizable(false);
@@ -65,6 +74,10 @@ public class ClientUserInterface extends JFrame {
         // -- show the frame on the screen
         this.setVisible(true);
         
+    }
+    
+    public void updateFrame(JPanel window) {
+    	super.add(window);
     }
 
     // -- create a new class Login Window from JFrame
@@ -167,6 +180,98 @@ public class ClientUserInterface extends JFrame {
         }
     }
     
+    public class ConnectWindow extends JPanel {
+    	// -- push buttons
+        private JButton connect;
+        private JTextField ipAddress;
+        private JLabel statusLabel;
+        
+        
+        public ConnectWindow() {
+        	
+        	ipAddress = new JTextField(15);
+        	statusLabel = new JLabel(" ", SwingConstants.CENTER);
+        	
+        	prepareButtonHandlers();
+        	
+        	setLayout(new GridBagLayout());
+        	GridBagConstraints gbc = new GridBagConstraints();
+        	
+        	 gbc.gridx = 0;
+             gbc.gridy = 0;
+             gbc.anchor = GridBagConstraints.WEST;
+             gbc.insets = new Insets(5, 5, 5, 5);
+             this.add(new JLabel("IP Address:"), gbc);
+             
+             gbc.gridx = 1;
+             this.add(ipAddress, gbc);
+             
+             JPanel buttonPanel = new JPanel(new FlowLayout());
+             buttonPanel.add(connect);
+             
+             gbc.gridx = 0;
+             gbc.gridy = 2;
+             gbc.gridwidth = 2;
+             gbc.fill = GridBagConstraints.HORIZONTAL;
+             this.add(buttonPanel, gbc);
+ 
+             gbc.gridy = 3;
+             this.add(statusLabel, gbc);
+        }
+        
+        	private void prepareButtonHandlers() {
+            	
+            	connect = new JButton("Connect");
+            	connect.addActionListener(
+                    new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                        	String ip = ipAddress.getText();
+                        	
+                        	if (ip.isEmpty()) {
+                                statusLabel.setText("Please fill in IP field");
+                                return;
+                            }
+
+                            statusLabel.setText("Attempting to connect");
+                        	
+                        	clientConnect(client, ip);
+                            
+                        	connectWindow.setVisible(false);
+                            updateFrame(controlPanel);
+                            controlPanel.setVisible(true);
+                        }
+                    }
+                );
+            }
+        	
+        	private void clientConnect(Client client, String ip) {
+        		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+					@Override
+					protected Void doInBackground() throws Exception {
+						try {
+							client.connect(ip);
+						} catch (IOException e){
+							System.out.println(e.getStackTrace());
+						}
+						
+						
+						return null;
+					}
+        		};
+        
+        		worker.execute();
+        		
+        	}
+            
+            // -- sets the size of the JPanel
+            public Dimension getPreferredSize()
+            {
+                return new Dimension(200, 500);
+            }
+        
+    }
+    
     public class ControlPanelInner extends JPanel {
     	
     	// -- push buttons
@@ -221,8 +326,36 @@ public class ClientUserInterface extends JFrame {
 
         	register = new JButton("Register");
         	pwdRecov = new JButton("Recovery Password");
-        	shutdown = new JButton("Shutdown");
+        	
+        	shutdown = new JButton("Shutdown"); 
+        	shutdown.addActionListener(
+                    new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                             clientDisconnect(client);
+                             controlPanel.setVisible(false);
+                             connectWindow.setVisible(true);
+                             connectWindow.ipAddress.setText("");
+                             connectWindow.statusLabel.setText("Successfully Disconnected from Server");
+                        }
+                    }
+                );
+        	
         }
+        
+        private void clientDisconnect(Client client) {
+    		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+				@Override
+				protected Void doInBackground() throws Exception {
+					
+					client.disconnect();
+					
+					return null;
+				}
+    		};
+    
+    		worker.execute();
+    	}
         
         // -- sets the size of the JPanel
         public Dimension getPreferredSize()
@@ -233,7 +366,7 @@ public class ClientUserInterface extends JFrame {
     
     public static void main(String[] args) {
 	      
-	     new ClientUserInterface();
+	     //new ClientUserInterface();
 	
 	     // -- this line demonstrates that the Swing JFrame runs in
 	     //    its own thread
@@ -241,4 +374,3 @@ public class ClientUserInterface extends JFrame {
 		
 	}
 }
-
