@@ -9,7 +9,9 @@
   "java.project.referencedLibraries": [
     "lib/**/*.jar",
     "c:\\Program Files (x86)\\MySQL\\Connector J 8.0\\mysql-connector-java-8.0.26.jar",
-    "c:\\Users\\condr\\Downloads\\jbcrypt-0.4.jar"
+    "c:\\Users\\condr\\Downloads\\jbcrypt-0.4.jar",
+    "/Users/chriscondreay/Downloads/mysql-connector-j-9.1.0/mysql-connector-j-9.1.0.jar",
+    "/Users/chriscondreay/Downloads/jbcrypt-0.4.jar"
   ],
   "java.project.sourcePaths": [
     "DB/src",
