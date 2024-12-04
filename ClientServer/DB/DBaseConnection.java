@@ -17,7 +17,7 @@ public class DBaseConnection {
   private ResultSet rset = null;
 
   String schema = "client";
-  private String url = "jdbc:mysql://127.0.0.1:3306/" + schema;
+  private String url = "jdbc:mysql://192.168.0.3:3306/" + schema;
 
   public DBaseConnection(String username, String password) {
     try {
