@@ -11,10 +11,10 @@ import java.util.Vector;
 public class Server {
 
 	// -- assign each client connection an ID. Just increment for now
-	private int nextId = 0;
+	//private int nextId = 0;
 	
 	// -- the socket that waits for client connections
-	private ServerSocket serversocket;
+	private static ServerSocket serversocket;
 
 	// -- the port number used for client communication
 	private static final int PORT = 8000;
@@ -24,9 +24,9 @@ public class Server {
 	
 	private static int connections = 0;
 	
-	 private DataInputStream in;
+	private static DataInputStream in;
 	
-	private static final String STOP_STRING = "##";
+	private static final String STOP_STRING = "###";
 	
 	public int getPort()
 	{
@@ -51,9 +51,20 @@ public class Server {
 		
 	}
 
+	
 	public static int getConnections() {
 		return connections;
 	}
+		
+	public static void close() throws IOException {
+        try {
+			in.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        serversocket.close();
+    }
 
 	private void inConnections() throws IOException {
 		Socket socket = serversocket.accept();
@@ -67,19 +78,16 @@ public class Server {
 		        }).start();
 	}
 	
-	private void close() throws IOException {
-        in.close();
-        serversocket.close();
-    }
-	
 	public static void main (String args[])
 	{
+		
 		new ServerUserInterface();
+		
 		// -- instantiate the server anonymously
 		//    no need to keep a reference to the object since it will run in its own thread
 		new Server();
 		
 		System.out.println("Server Stopped.");
-		
+			
 	}
 }
