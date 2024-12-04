@@ -87,6 +87,10 @@ public class ServerUserInterface extends JFrame {
         	
         	// -- construct the JTextField, 15 characters wide
         	connections = new JTextField(" ", 15);
+        	String count = "";
+        	count = count.valueOf(Server.getConnections());
+        	connections.setText(count);
+        	
         	connections.setEditable(false);
         	users = new JTextField(" ", 15);
         	users.setEditable(false);
@@ -111,10 +115,10 @@ public class ServerUserInterface extends JFrame {
                     	
         			public void actionPerformed(ActionEvent arg0) {
                         	
-        				// -- do not do anything that is time consuming
-        				//    doing so will make the GUI non-responsive to the user
-        				//String textFieldString = textField.getText();
-                        
+        				String count = "";
+        	        	count = count.valueOf(Server.getConnections());
+        	        	connections.setText(count);
+        				
         			}
                 }
             );
