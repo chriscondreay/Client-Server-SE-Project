@@ -7,6 +7,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,11 +19,10 @@ import javax.swing.JTextField;
 
 public class ServerUserInterface extends JFrame {
 	
-	private final int WIDTH = 600;
-    private final int HEIGHT = 600;
+	private final int WIDTH = 300;
+    private final int HEIGHT = 200;
 
     private ControlPanelInner controlPanel;
-    private DisplayPanelInner displayPanel;
     
     public ServerUserInterface() {
     	
@@ -50,11 +50,7 @@ public class ServerUserInterface extends JFrame {
        
         // -- construct a JPanel
         controlPanel = new ControlPanelInner();
-        this.add(controlPanel, BorderLayout.WEST);
-        
-        // -- construct a JPanel
-        displayPanel = new DisplayPanelInner();
-        this.add(displayPanel, BorderLayout.CENTER);
+        this.add(controlPanel, BorderLayout.CENTER);
         
         // -- can make it so the user cannot resize the frame
         this.setResizable(false);
@@ -62,6 +58,17 @@ public class ServerUserInterface extends JFrame {
         // -- show the frame on the screen
         this.setVisible(true);
         
+    }
+    
+    private void close() {
+    	try {
+			Server.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	super.dispose();
+    	
     }
     
     public class ControlPanelInner extends JPanel {
@@ -90,16 +97,13 @@ public class ServerUserInterface extends JFrame {
         	String count = "";
         	count = count.valueOf(Server.getConnections());
         	connections.setText(count);
-        	
         	connections.setEditable(false);
-        	users = new JTextField(" ", 15);
-        	users.setEditable(false);
         	
             // -- add items to the JPanel in order
         	this.add(numOfConnections);
         	this.add(connections);
-        	this.add(numOfloggedInUsers);
-        	this.add(users);
+        	//this.add(numOfloggedInUsers);
+        	//this.add(users);
             this.add(refresh); 
             this.add(shutdown);
             
@@ -118,12 +122,22 @@ public class ServerUserInterface extends JFrame {
         				String count = "";
         	        	count = count.valueOf(Server.getConnections());
         	        	connections.setText(count);
-        				
+        	        	
         			}
                 }
             );
         	
-        	shutdown= new JButton("Shutdown");
+        	shutdown = new JButton("Shutdown"); 
+        	shutdown.addActionListener(
+            		new ActionListener() {
+                        	
+            			public void actionPerformed(ActionEvent arg0) {
+            				
+            				close();	
+            	        	
+            			}
+                    }
+                );
         }
         
         // -- sets the size of the JPanel
@@ -137,7 +151,7 @@ public class ServerUserInterface extends JFrame {
     public class DisplayPanelInner extends JPanel{
     	
     	// -- fixed labels, can be changed by the program but not the user
-    	private JLabel loggedInUserEmail = new JLabel("  Logged In User Emails   ");
+    	//private JLabel loggedInUserEmail = new JLabel("  Logged In User Emails   ");
     	
     	private JTextArea textArea;
     	private JScrollPane emailScrollPane;
@@ -148,10 +162,11 @@ public class ServerUserInterface extends JFrame {
     		
     		setLayout(new FlowLayout());
     		
-    		textArea = new JTextArea(30,75);
-    		this.add(textArea);
+//    		textArea = new JTextArea(30,75);
+//    		this.add(textArea);
+//    		textArea.setText(" *Work in Progress* ");
     		
-    		this.add(loggedInUserEmail);
+    		//this.add(loggedInUserEmail);
     	}
     	
     	// -- sets the size of the JPanel
@@ -162,9 +177,10 @@ public class ServerUserInterface extends JFrame {
     	
     }
     
+    
     public static void main(String[] args) {
 	      
-	     new ServerUserInterface();
+	     //new ServerUserInterface();
 	
 	     // -- this line demonstrates that the Swing JFrame runs in
 	     //    its own thread
