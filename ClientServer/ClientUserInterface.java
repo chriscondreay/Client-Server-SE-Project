@@ -27,7 +27,7 @@ import ClientServer.ServerUserInterface.DisplayPanelInner;
 
 public class ClientUserInterface extends JFrame {
 	
-	private final int WIDTH = 300;
+    private final int WIDTH = 300;
     private final int HEIGHT = 200;
     
     private ConnectWindow connectWindow;
@@ -36,6 +36,8 @@ public class ClientUserInterface extends JFrame {
     private boolean loginVisible = false;
     private Client client;
     //private JFrame main;
+    
+    private int loginCount;
     
     public ClientUserInterface() {
     	
@@ -171,10 +173,19 @@ public class ClientUserInterface extends JFrame {
 
             if (loginSuccess) {
                 System.out.println("Login successful!");
+                loginCount = 0;
                 dispose();
             } else {
-                statusLabel.setText("Invalid username or password");
-                passwordField.setText("");
+            	if (loginCount != 4) {
+            		++loginCount;
+                	int attempts = 4 - loginCount;
+                    statusLabel.setText("Invalid username or password. " + attempts + " remaining.");
+                    passwordField.setText("");
+            	} else {
+            		statusLabel.setText("Too many login attempts. Please Recover Password or Register.");
+            		dispose();
+            	}
+                
             }
 
         }
@@ -235,10 +246,14 @@ public class ClientUserInterface extends JFrame {
                             statusLabel.setText("Attempting to connect");
                         	
                         	clientConnect(client, ip);
-                            
-                        	connectWindow.setVisible(false);
-                            updateFrame(controlPanel);
-                            controlPanel.setVisible(true);
+//                            
+//                        	if (client.getConnected()) {
+                        		connectWindow.setVisible(false);
+                                updateFrame(controlPanel);
+                                controlPanel.setVisible(true);	
+//                        	} else {
+//                        		statusLabel.setText("Connection Failed. Try Again.");
+//                        	}
                         }
                     }
                 );
@@ -255,13 +270,12 @@ public class ClientUserInterface extends JFrame {
 							System.out.println(e.getStackTrace());
 						}
 						
-						
 						return null;
 					}
         		};
         
         		worker.execute();
-        		
+    
         	}
             
             // -- sets the size of the JPanel
@@ -307,7 +321,9 @@ public class ClientUserInterface extends JFrame {
             this.add(register); 
             this.add(pwdRecov); 
             this.add(shutdown); 
+            
             this.add(errorMessages);
+            errorMessages.setVisible(false);
             
         }
         
@@ -327,7 +343,7 @@ public class ClientUserInterface extends JFrame {
         	register = new JButton("Register");
         	pwdRecov = new JButton("Recovery Password");
         	
-        	shutdown = new JButton("Shutdown"); 
+        	shutdown = new JButton("Disconnect"); 
         	shutdown.addActionListener(
                     new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
@@ -355,6 +371,7 @@ public class ClientUserInterface extends JFrame {
     		};
     
     		worker.execute();
+    		
     	}
         
         // -- sets the size of the JPanel
@@ -366,7 +383,7 @@ public class ClientUserInterface extends JFrame {
     
     public static void main(String[] args) {
 	      
-	     //new ClientUserInterface();
+	     new ClientUserInterface();
 	
 	     // -- this line demonstrates that the Swing JFrame runs in
 	     //    its own thread
