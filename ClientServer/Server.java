@@ -58,7 +58,9 @@ public class Server {
 		
 	public static void close() throws IOException {
         try {
-			in.close();
+			if(in != null) {
+				in.close();
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,6 +90,8 @@ public class Server {
 		new Server();
 		
 		System.out.println("Server Stopped.");
-			
+		
+	
 	}
 }
+
