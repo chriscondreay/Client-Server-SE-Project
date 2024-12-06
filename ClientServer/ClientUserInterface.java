@@ -102,7 +102,7 @@ public class ClientUserInterface extends JFrame {
             super("Login");
 
             // -- connection for the database, change the username and password to your MySQL credentials
-            dbConnection = new DBaseConnection("root", "Nita2020!CeC");
+            dbConnection = new DBaseConnection("csc335group", "cscgroup");
 
             initializeComponents();
             setupLayout();
@@ -211,8 +211,8 @@ public class ClientUserInterface extends JFrame {
         super("Register");
         
         // Use your MySQL credentials here
-        String dbUsername = "root"; // your MySQL username
-        String dbPassword = "Nita2020!CeC"; // your MySQL password
+        String dbUsername = "csc335group"; // your MySQL username
+        String dbPassword = "cscgroup"; // your MySQL password
         dbConnection = new DBaseConnection(dbUsername, dbPassword);
         
         initializeComponents();
