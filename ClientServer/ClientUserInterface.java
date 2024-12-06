@@ -10,7 +10,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,8 +25,11 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.Timer;
 
-import ClientServer.DBaseConnection;
+import org.mindrot.jbcrypt.BCrypt;
+
+import ClientServer.DB.DBaseConnection;
 import ClientServer.ServerUserInterface.DisplayPanelInner;
 
 public class ClientUserInterface extends JFrame {
@@ -190,6 +197,151 @@ public class ClientUserInterface extends JFrame {
 
         }
     }
+
+    private class RegisterWindow extends JFrame {
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JPasswordField confirmPasswordField;
+    private JButton registerButton;
+    private JButton cancelButton;
+    private JLabel statusLabel;
+    private DBaseConnection dbConnection;
+
+    public RegisterWindow() {
+        super("Register");
+        
+        // Use your MySQL credentials here
+        String dbUsername = "root"; // your MySQL username
+        String dbPassword = "Nita2020!CeC"; // your MySQL password
+        dbConnection = new DBaseConnection(dbUsername, dbPassword);
+        
+        initializeComponents();
+        setupLayout();
+
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setSize(300, 250);
+        setLocationRelativeTo(null);
+        setResizable(false);
+    }
+
+    private void initializeComponents() {
+        usernameField = new JTextField(15);
+        passwordField = new JPasswordField(15);
+        confirmPasswordField = new JPasswordField(15);
+        registerButton = new JButton("Register");
+        cancelButton = new JButton("Cancel");
+        statusLabel = new JLabel(" ", SwingConstants.CENTER);
+
+        registerButton.addActionListener(e -> handleRegistration());
+        cancelButton.addActionListener(e -> dispose());
+    }
+
+    private void setupLayout() {
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        // Common constraints for labels
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.NONE;
+
+        // Username label
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        mainPanel.add(new JLabel("Username:"), gbc);
+        
+        // Username field
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Make the field fill horizontal space
+        gbc.weightx = 1.0; // Give extra horizontal space to the field
+        mainPanel.add(usernameField, gbc);
+        
+        // Password label
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE; // Reset fill for label
+        gbc.weightx = 0.0; // Reset weight for label
+        mainPanel.add(new JLabel("Password:"), gbc);
+        
+        // Password field
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        mainPanel.add(passwordField, gbc);
+        
+        // Confirm Password label
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0.0;
+        mainPanel.add(new JLabel("Confirm Password:"), gbc);
+        
+        // Confirm Password field
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        mainPanel.add(confirmPasswordField, gbc);
+        
+        // Button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(registerButton);
+        buttonPanel.add(cancelButton);
+        
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(buttonPanel, gbc);
+        
+        // Status label
+        gbc.gridy = 4;
+        mainPanel.add(statusLabel, gbc);
+        
+        // Add some padding around the main panel
+        JPanel wrapperPanel = new JPanel(new BorderLayout());
+        wrapperPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        wrapperPanel.add(mainPanel, BorderLayout.CENTER);
+        
+        add(wrapperPanel);
+        
+        // Make the window slightly bigger
+        setSize(350, 250);
+    }
+
+    private void handleRegistration() {
+        String username = usernameField.getText();
+        String password = new String(passwordField.getPassword());
+        String confirmPassword = new String(confirmPasswordField.getPassword());
+
+        // Basic validation
+        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            statusLabel.setText("Please fill in all fields");
+            return;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            statusLabel.setText("Passwords do not match");
+            passwordField.setText("");
+            confirmPasswordField.setText("");
+            return;
+        }
+
+        if (dbConnection.checkUsername(username)) {
+            statusLabel.setText("Username already exists");
+            return;
+        }
+    
+        if (dbConnection.registerUser(username, password)) {
+            statusLabel.setText("Registration successful!");
+            // Optional: Close the window after successful registration
+            Timer timer = new Timer(1500, e -> dispose());
+            timer.setRepeats(false);
+            timer.start();
+        } else {
+            statusLabel.setText("Registration failed");
+        }
+    }
+}
     
     public class ConnectWindow extends JPanel {
     	// -- push buttons
@@ -341,6 +493,15 @@ public class ClientUserInterface extends JFrame {
             );
 
         	register = new JButton("Register");
+            register.addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        RegisterWindow registerWindow = new RegisterWindow();
+                        registerWindow.setVisible(true);
+                    }
+                }
+            );
+
         	pwdRecov = new JButton("Recovery Password");
         	
         	shutdown = new JButton("Disconnect"); 

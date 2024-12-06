@@ -73,6 +73,44 @@ public class DBaseConnection {
     }
   }
 
+  public boolean checkUsername(String username) {
+    try {
+        String checkSQL = "SELECT username FROM users WHERE username = ?";
+        PreparedStatement checkStmt = conn.prepareStatement(checkSQL);
+        checkStmt.setString(1, username);
+        ResultSet rs = checkStmt.executeQuery();
+
+        // returns true if username exists
+        return rs.next(); 
+    } catch (SQLException e) {
+        System.out.println("SQLException: " + e.getMessage());
+        System.out.println("SQLState: " + e.getSQLState());
+        System.out.println("VendorError: " + e.getErrorCode());
+        return false;
+    }
+}
+
+public boolean registerUser(String username, String password) {
+    try {
+        if (checkUsername(username)) {
+            return false;
+        }
+
+        String hashedPass = BCrypt.hashpw(password, BCrypt.gensalt());
+        String insertSQL = "INSERT INTO users (username, password) VALUES (?, ?)";
+        PreparedStatement insertStmt = conn.prepareStatement(insertSQL);
+        insertStmt.setString(1, username);
+        insertStmt.setString(2, hashedPass);
+        
+        return insertStmt.executeUpdate() > 0;
+    } catch (SQLException e) {
+        System.out.println("SQLException: " + e.getMessage());
+        System.out.println("SQLState: " + e.getSQLState());
+        System.out.println("VendorError: " + e.getErrorCode());
+        return false;
+    }
+}
+
   public boolean verifyUser(String username, String password) {
     try {
       System.out.println("Attempting to verify user: " + username);
@@ -121,6 +159,10 @@ public class DBaseConnection {
         System.out.println("VendorError: " + e.getErrorCode());
     }
   }
+
+  public Connection getConnection() {
+    return this.conn;
+}
 
   public static void main(String[] args) {
         Scanner kb = new Scanner(System.in);
